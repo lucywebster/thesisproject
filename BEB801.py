@@ -63,7 +63,7 @@ while continue_reading:
 # Check if authenticated
         if status == MIFAREReader.MI_OK:
 
-            print "Sector 8 looked like this:"
+            print "The card look like this:"
             # Read block 8
             if MIFAREReader.MFRC522_Read(8) == [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]:
                 card_empty = True
@@ -119,7 +119,7 @@ while card_empty:
             for x in range(0,16):
                 data.append(0xFF)
 
-            print "Sector 8 looked like this:"
+            print "The card looked like this:"
             # Read block 8
             MIFAREReader.MFRC522_Read(8)
             print "\n"
