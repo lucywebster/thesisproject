@@ -3,7 +3,7 @@
 # The following program has been written by Lucy Webster, 09154752, for the purpose of 
 # BEB801 Project, Intergenerational Language Transmission at QUT
 #
-# The file will aloow read and write on to RFID cards
+# The file will allow read and write on to RFID cards
 
 import RPi.GPIO as GPIO
 import MFRC522
