@@ -1,5 +1,10 @@
-####this is a est to record sound
 
-date = 
-$DATE = "+$D %T" 
-arecord --format S16_LE --ate 44100 -c1 $DATE.wav
+
+import sounddevice as sd
+
+duration = 10.5
+myrecordin = sd.rec(int(duration * fs), samplerate=fs, channels=2)
+
+sd.wait()
+
+
