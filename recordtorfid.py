@@ -26,12 +26,14 @@ import MFRC522
 import signal
 import pyaudio
 import wave
+import SimpleMFRC522
+from time import sleep
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 2
 RATE = 44100
-RECORD_SECONDS = 5
+RECORD_SECONDS = 10
 WAVE_OUTPUT_FILENAME = "recordtest.wav"
 
 p = pyaudio.PyAudio()
@@ -42,52 +44,51 @@ stream = p.open(format=FORMAT,
                 input=True,
                 frames_per_buffer=CHUNK)
 
-continue_reading = True
 
 # Capture SIGINT for cleanup when the script is aborted
-def end_read(signal,frame):
-    global continue_reading
-    print ("Ctrl+C captured, ending read.")
-    continue_reading = False
-    GPIO.cleanup()
 
 # Hook the SIGINT
-signal.signal(signal.SIGINT, end_read)
+#signal.signal(signal.SIGINT, end_read)
 
 # Create an object of the class MFRC522
 MIFAREReader = MFRC522.MFRC522()
-
+reader = SimpleMFRC522.SimpleMFRC522()
 # This loop keeps checking for chips. If one is near it will get the UID and authenticate
-while continue_reading:
-    
+
+file = open("record.txt","a")
+
+print("Scan Tag!")
+
+try:
+    while True:
     # Scan for cards    
-    (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+    #(status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
     # If a card is found
-    if status == MIFAREReader.MI_OK:
-        print ("Card detected")
+    #if status == MIFAREReader.MI_OK:
+        #print ("Card detected")
     
     # Get the UID of the card
-    (status,uid) = MIFAREReader.MFRC522_Anticoll()
+    #(status,uid) = MIFAREReader.MFRC522_Anticoll()
 
     # If we have the UID, continue
-    if status == MIFAREReader.MI_OK:
+    #if status == MIFAREReader.MI_OK:
 
         # Print UID
-        print ("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
+        #print ("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
     
         # This is the default key for authentication
-        key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
+        #key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
         
         # Select the scanned tag
-        MIFAREReader.MFRC522_SelectTag(uid)
+        #MIFAREReader.MFRC522_SelectTag(uid)
 
         # Authenticate
-        status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
+        #status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
         #print "\n"
 
         # Check if authenticated
-        if status == MIFAREReader.MI_OK:
+        #if status == MIFAREReader.MI_OK:
 
             # Variable for the data to write
             #data = []
@@ -98,8 +99,12 @@ while continue_reading:
 
             #print "Sector 8 looked like this:"
             # Read block 8
-            MIFAREReader.MFRC522_Read(8)
             #print "\n"
+            
+            id, text = reader.read()
+            #file.write(str(id)+"\n")
+
+            sleep(1)
 
             #print "Sector 8 will now be filled with 0xFF:"
             # Write the data
@@ -111,11 +116,10 @@ while continue_reading:
             print ("recordng!")
 
             frames = []
-            sound = []
             # Fill the data with 0x00
             for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
                 data = stream.read(CHUNK)
-                sound = frames.append(data)
+                frames.append(data)
 
             print("done")
 
@@ -123,14 +127,12 @@ while continue_reading:
             stream.close()
             p.terminate()
 
-            MIFAREReader.MFRC522_Write(8,sound) 
-
             wf = wave.open(WAVE_OUTPUT_FILENAME , 'wb')
             wf.setnchannels(CHANNELS)
             wf.setsampwidth(p.get_sample_size(FORMAT))
             wf.setframerate(RATE)
             wf.writeframes(b''.join(frames))
-            
+            file.write(str(id)+" recordtest.wav"+"\n")
             
 
             #print "Now we fill it with 0x00:"
@@ -146,7 +148,8 @@ while continue_reading:
             #MIFAREReader.MFRC522_StopCrypto1()
 
             # Make sure to stop reading for cards
-            continue_reading = False
-        else:
-            print ("Authentication error")
+except KeyboardInterrupt:
+            print ("Finish!")
+            GPIO.cleanup()
+            file.close()
 
