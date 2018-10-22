@@ -34,7 +34,6 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 2
 RATE = 44100
 RECORD_SECONDS = 10
-WAVE_OUTPUT_FILENAME = "recordtest.wav"
 
 p = pyaudio.PyAudio()
 
@@ -103,7 +102,7 @@ try:
             
             id, text = reader.read()
             #file.write(str(id)+"\n")
-
+            WAVE_OUTPUT_FILENAME = str(id)+".wav"
             sleep(1)
 
             #print "Sector 8 will now be filled with 0xFF:"
@@ -132,7 +131,7 @@ try:
             wf.setsampwidth(p.get_sample_size(FORMAT))
             wf.setframerate(RATE)
             wf.writeframes(b''.join(frames))
-            file.write(str(id)+" recordtest.wav"+"\n")
+            file.write("ID: "+str(id)+"\n"+"AudioFile: "+str(id)+".wav"+"\n")
             
 
             #print "Now we fill it with 0x00:"
