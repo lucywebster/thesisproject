@@ -14,8 +14,8 @@ import wave
 import SimpleMFRC522
 from time import sleep
 
-file = open("record.txt)","a")
-playbackfile = open("record.txt","w")
+#file = open("record.txt)","a")
+#playbackfile = open("record.txt","w")
 
 
 p = pyaudio.PyAudio()
@@ -44,10 +44,19 @@ card_empty = False
 
 print("Scan Cards!")
 
+def check(fileid):
+    datafile = open("record.txt","r")
+    for line in datafile:
+        if "{0}".format(str(fileid)) in line:
+            datafile.close()
+            return True
+    datafile.close()
+    return False
+
 try:
     # This loop keeps checking for chips. If one is near it will get the UID and authenticate
         while continue_reading:
-
+            playbackfile = open("record.txt","r")
         # Scan for cards    
         #(status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
@@ -81,14 +90,16 @@ try:
                 # Read block 8
                 #if MIFAREReader.MFRC522_Read(8) == [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]:
             #search == "{0}.wav".format(str(id)) 
-            if file.find(search) is not -1:
+            #if search in open("record.txt").read():
+            #if playbackfile.read(id) == -1:
+            if check(id) == False:
 
-                print("not there")
+                print("\r\r\rnot there")
                 card_empty = True
                 continue_reading = False
-
+                playbackfile.close()
             else:
-        
+                #laybackfile = open("record.txt","a")
                 #continue_reading = False
                     # Stop
                    # MIFAREReader.MFRC522_StopCrypto1()
@@ -101,7 +112,7 @@ try:
                 wavObj = sa.WaveObject.from_wave_file(search)
                 player = wavObj.play()
                 player.wait_done()
-            
+                playbackfile.close()
                        
                       # data = MIFAREReader.MFRC522_Read(8)
                        #text = "".join(chr(x) for x in data)
@@ -118,6 +129,7 @@ try:
        # data = [ord(x) for x in list(name)]
 
         while card_empty:
+            recordfile = open("record.txt","a+")
             WAVE_OUTPUT_FILENAME = str(id)+".wav"
             sleep(1)
 
@@ -141,8 +153,8 @@ try:
             wf.setsampwidth(p.get_sample_size(FORMAT))
             wf.setframerate(RATE)
             wf.writeframes(b''.join(frames))
-            file.write("ID: "+str(id)+"\n"+"AudioFile: "+str(id)+".wav"+"\n \n")
-
+            recordfile.write("ID: "+str(id)+"\n"+"AudioFile: "+str(id)+".wav"+"\n \n")
+            recordfile.close()
         # Scan for cards    
         #(status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
         # If a card is found
@@ -198,5 +210,6 @@ except KeyboardInterrupt:
     print("Finish!")
     GPIO.cleanup()
     #continue_reading = False
-    file.close()
+    #file.close()
+
 
