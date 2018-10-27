@@ -25,7 +25,7 @@ CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 2
 RATE = 44100
-RECORD_SECONDS = 10
+RECORD_SECONDS = 5
 
 stream = p.open(format=FORMAT,
                 channels=CHANNELS,
@@ -42,7 +42,6 @@ card_empty = False
 # Create an object of the class MFRC522
 #MIFAREReader = MFRC522.MFRC522()
 
-print("Scan Cards!")
 
 def check(fileid):
     datafile = open("record.txt","r")
@@ -56,6 +55,7 @@ def check(fileid):
 try:
     # This loop keeps checking for chips. If one is near it will get the UID and authenticate
         while continue_reading:
+            print("Scan Tag!")
             playbackfile = open("record.txt","r")
         # Scan for cards    
         #(status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
@@ -95,9 +95,36 @@ try:
             if check(id) == False:
 
                 print("\r\r\rnot there")
-                card_empty = True
-                continue_reading = False
-                playbackfile.close()
+                #card_empty = True
+                playbackfile.close()      
+                #continue_reading = False
+                recordfile = open("record.txt","a+")
+                WAVE_OUTPUT_FILENAME = str(id)+".wav"
+                sleep(1)
+
+
+                print("Recording!")
+
+                frames = []
+
+                for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+                    data = stream.read(CHUNK)
+                    frames.append(data)
+
+                print("Done!")
+
+                stream.stop_stream()
+                stream.close()
+                p.terminate()
+
+                wf = wave.open(WAVE_OUTPUT_FILENAME , 'wb')
+                wf.setnchannels(CHANNELS)
+                wf.setsampwidth(p.get_sample_size(FORMAT))
+                wf.setframerate(RATE)
+                wf.writeframes(b''.join(frames))
+                recordfile.write("ID: "+str(id)+"\n"+"AudioFile: "+str(id)+".wav"+"\n \n")
+                recordfile.close()
+     
             else:
                 #laybackfile = open("record.txt","a")
                 #continue_reading = False
@@ -128,34 +155,8 @@ try:
        #     name=name[:16]
        # data = [ord(x) for x in list(name)]
 
-        while card_empty:
-            recordfile = open("record.txt","a+")
-            WAVE_OUTPUT_FILENAME = str(id)+".wav"
-            sleep(1)
-
-
-            print("Recording!")
-
-            frames = []
-
-            for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-                data = stream.read(CHUNK)
-                frames.append(data)
-
-            print("Done!")
-
-            stream.stop_stream()
-            stream.close()
-            p.terminate()
-
-            wf = wave.open(WAVE_OUTPUT_FILENAME , 'wb')
-            wf.setnchannels(CHANNELS)
-            wf.setsampwidth(p.get_sample_size(FORMAT))
-            wf.setframerate(RATE)
-            wf.writeframes(b''.join(frames))
-            recordfile.write("ID: "+str(id)+"\n"+"AudioFile: "+str(id)+".wav"+"\n \n")
-            recordfile.close()
-        # Scan for cards    
+        #while card_empty:
+       # Scan for cards    
         #(status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
         # If a card is found
         #if status == MIFAREReader.MI_OK:
