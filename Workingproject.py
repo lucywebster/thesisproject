@@ -15,23 +15,17 @@ import SimpleMFRC522
 from time import sleep
 
 #file = open("record.txt)","a")
-#playbackfile = open("record.txt","w")
-
-
-p = pyaudio.PyAudio()
-reader = SimpleMFRC522.SimpleMFRC522()
-
-CHUNK = 1024
+#playbackfile = open("record.txt","w"
+CHUNK = 2048
 FORMAT = pyaudio.paInt16
-CHANNELS = 2
+CHANNELS = 32
 RATE = 44100
 RECORD_SECONDS = 5
 
-stream = p.open(format=FORMAT,
-                channels=CHANNELS,
-                rate=RATE,
-                input=True,
-                frames_per_buffer=CHUNK)
+              
+
+p = pyaudio.PyAudio()
+reader = SimpleMFRC522.SimpleMFRC522()
 
 #id,text = reader.read()
 
@@ -72,7 +66,8 @@ try:
 
             # Print UID
             #print "Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3])
-        
+            
+                   
             # This is the default key for authentication
             #key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
             id,text = reader.read()            
@@ -93,6 +88,12 @@ try:
             #if search in open("record.txt").read():
             #if playbackfile.read(id) == -1:
             if check(id) == False:
+                stream = p.open(format=FORMAT,
+                                channels=CHANNELS,
+                                rate=RATE,
+                                input=True,
+                                frames_per_buffer=CHUNK)
+
 
                 print("\r\r\rnot there")
                 #card_empty = True
@@ -122,7 +123,7 @@ try:
                 wf.setsampwidth(p.get_sample_size(FORMAT))
                 wf.setframerate(RATE)
                 wf.writeframes(b''.join(frames))
-                recordfile.write("ID: "+str(id)+"\n"+"AudioFile: "+str(id)+".wav"+"\n \n")
+                recordfile.write("AudioFile: "+str(id)+".wav"+"\n \n")
                 recordfile.close()
      
             else:
