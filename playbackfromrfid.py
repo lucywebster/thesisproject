@@ -7,12 +7,7 @@ from time import sleep
 
 f = open("record.txt","w")
 reader = SimpleMFRC522.SimpleMFRC522()
-#Config = ConfigParser.ConfigParser()
-#Config.read("record.txt")
 
-#def TagtoMplater(strTag):
- #   try:
-  #      strAudioFile = 
 
 print("Scan Tag!")
 
