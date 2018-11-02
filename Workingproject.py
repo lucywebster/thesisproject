@@ -28,7 +28,7 @@ continue_reading = True
 card_empty = False
 
 def check(fileid):
-    datafile = open("record.txt","r")
+    datafile = open("Audio/record.txt","r")
     for line in datafile:
         if "{0}".format(str(fileid)) in line:
             datafile.close()
@@ -44,16 +44,16 @@ try:
             player.wait_done()
 
             
-            playbackfile = open("record.txt","r")
+            playbackfile = open("Audio/record.txt","r")
 
                   
             id,text = reader.read()            
-            search = "{0}.wav".format(str(id))
+            search = "Audio/{0}.wav".format(str(id))
             if check(id) == False:
                 print("not there")
                 playbackfile.close()      
-                recordfile = open("record.txt","a+")
-                WAVE_OUTPUT_FILENAME = str(id)+".wav"
+                recordfile = open("Audio/record.txt","a+")
+                WAVE_OUTPUT_FILENAME ="Audio/"+str(id)+".wav"
                 sleep(1)
                 stream = p.open(format=FORMAT,
                                 channels=CHANNELS,
