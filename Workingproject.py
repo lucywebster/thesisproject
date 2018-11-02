@@ -16,19 +16,12 @@ from time import sleep
 
 p = pyaudio.PyAudio()
 reader = SimpleMFRC522.SimpleMFRC522()
-
+ 
 CHUNK = 2048
 FORMAT = pyaudio.paInt16
-CHANNELS = 32
+CHANNELS = 2
 RATE = 44100
 RECORD_SECONDS = 5
-
-stream = p.open(format=FORMAT,
-                channels=CHANNELS,
-                rate=RATE,
-                input=True,
-                frames_per_buffer=CHUNK)
-
 
 
 continue_reading = True
@@ -46,8 +39,14 @@ def check(fileid):
 try:
         while continue_reading:
             print("Scan Tag!")
+            wavScan = sa.WaveObject.from_wave_file("beeps/scan.wav")
+            player = wavScan.play()
+            player.wait_done()
+
+            
             playbackfile = open("record.txt","r")
-                   
+
+                  
             id,text = reader.read()            
             search = "{0}.wav".format(str(id))
             if check(id) == False:
@@ -56,12 +55,24 @@ try:
                 recordfile = open("record.txt","a+")
                 WAVE_OUTPUT_FILENAME = str(id)+".wav"
                 sleep(1)
+                stream = p.open(format=FORMAT,
+                                channels=CHANNELS,
+                                rate=RATE,
+                                input=True,
+                                frames_per_buffer=CHUNK)
+
 
                 print("Recording!")
 
+                wavRec = sa.WaveObject.from_wave_file("beeps/recording.wav")
+                player = wavRec.play()
+                player.wait_done()
+
+                sleep(1)
+            
                 frames = []
 
-                for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+                for ii in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
                     data = stream.read(CHUNK)
                     frames.append(data)
 
@@ -69,7 +80,7 @@ try:
 
                 stream.stop_stream()
                 stream.close()
-                p.terminate()
+               # p.terminate()
 
                 wf = wave.open(WAVE_OUTPUT_FILENAME , 'wb')
                 wf.setnchannels(CHANNELS)
@@ -87,6 +98,7 @@ try:
                 player.wait_done()
                 playbackfile.close()
 
+                sleep(1)
             card_empty = False
 
 except KeyboardInterrupt:
